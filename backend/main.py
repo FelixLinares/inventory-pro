@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
+﻿from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, PlainTextResponse
 from sqlalchemy.orm import Session
@@ -48,7 +48,7 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
 def login(form: schemas.UserCreate, db: Session = Depends(get_db)):
     u = db.scalar(select(models.User).where(models.User.email == form.email))
     if not u or not verify_password(form.password, u.hashed_password):
-        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+        raise HTTPException(status_code=401, detail="Credenciales invÃ¡lidas")
     token = create_access_token({"sub": str(u.id)})
     return {"access_token": token}
 
@@ -77,7 +77,7 @@ def admin_reset_password(user_id: int, data: schemas.ResetPasswordIn, db: Sessio
     db.commit(); db.refresh(u)
     return u
 
-# ---------- Catálogos ----------
+# ---------- CatÃ¡logos ----------
 @app.get("/api/categories", response_model=List[schemas.CategoryOut])
 def list_categories(db: Session = Depends(get_db), user=Depends(get_current_user)):
     return db.scalars(select(models.Category)).all()
@@ -119,7 +119,7 @@ def apply_stock(db: Session, product_id: int, warehouse_id: int, delta: int):
 @app.post("/api/movements", response_model=schemas.MovementOut)
 def create_movement(data: schemas.MovementIn, db: Session = Depends(get_db), user=Depends(get_current_user)):
     if data.type not in ("in", "out"):
-        raise HTTPException(400, "Tipo inválido")
+        raise HTTPException(400, "Tipo invÃ¡lido")
     delta = data.qty if data.type == "in" else -abs(data.qty)
     apply_stock(db, data.product_id, data.warehouse_id, delta)
     obj = models.Movement(**data.model_dump())
@@ -239,3 +239,4 @@ def import_stock(file: UploadFile = File(...), db: Session = Depends(get_db), us
             st.qty = qty
     db.commit()
     return {"status":"ok","message":"Stock actualizado"}
+
