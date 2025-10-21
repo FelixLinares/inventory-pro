@@ -1,0 +1,16 @@
+﻿# Entornos / compilados
+backend/.venv/
+__pycache__/
+*.pyc
+
+# Entornos y secretos
+.env
+backend/.env
+frontend/.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (si en el futuro usas)
+frontend/node_modules/
