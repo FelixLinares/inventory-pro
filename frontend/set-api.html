@@ -1,0 +1,11 @@
+<!doctype html><html lang="es"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Configurar API</title><link rel="stylesheet" href="assets/style.css"/></head>
+<body><div class="container"><div class="card"><h1>Configurar API</h1>
+<label>URL base</label><input id="api" placeholder="https://tu-backend.onrender.com"/>
+<div style="margin-top:10px"><button id="save">Guardar</button></div>
+<div class="notice">Se guarda en <code>localStorage.API_BASE</code></div>
+</div></div>
+<script>const input=document.getElementById("api"); input.value=localStorage.getItem("API_BASE")||"";
+document.getElementById("save").onclick=()=>{ const v=input.value.trim(); localStorage.setItem("API_BASE",v); alert("Guardado. Ahora ve a login."); location.href="login.html"; };</script>
+</body></html>

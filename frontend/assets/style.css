@@ -1,0 +1,22 @@
+:root{
+  --bg:#0b1b2a; --surface:#0f2438; --text:#e9f1f7; --muted:#9fb3c8;
+  --primary:#1ea7ff; --accent:#00c389; --danger:#ff4d4d; --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box} html,body{margin:0;height:100%;font-family:Inter,Segoe UI,Roboto,Arial}
+body{background:var(--bg);color:var(--text)}
+.container{max-width:1200px;margin:40px auto;padding:0 24px}
+.card{background:var(--surface);border-radius:14px;padding:28px;box-shadow:var(--shadow)}
+h1,h2,h3{margin:0 0 18px}
+input,button,select{background:#0e2033;border:1px solid #22384f;color:var(--text);padding:12px 14px;border-radius:10px;outline:none;width:100%}
+button{background:linear-gradient(135deg,var(--primary),var(--accent));border:none;font-weight:700;cursor:pointer}
+.row{display:flex;gap:16px;flex-wrap:wrap}.col{flex:1 1 280px}
+.table{width:100%;border-collapse:collapse;margin-top:12px}
+.table th,.table td{padding:12px 10px;border-bottom:1px solid #1f344b}
+.table th{color:var(--muted);text-align:left}
+.badge{padding:4px 8px;border-radius:999px;background:#0e2033;border:1px solid #2b4b68}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:260px;background:#0e2033;border-right:1px solid #20364d;padding:20px;overflow:auto}
+.sidebar h3{margin:10px 0 14px}.sidebar a{display:block;color:var(--text);text-decoration:none;padding:10px;border-radius:8px;opacity:.9}
+.sidebar a.active,.sidebar a:hover{background:#12273d}.content{margin-left:280px;padding:30px}
+.kicker{opacity:.8} code.kbd{background:#0e2033;border:1px solid #22384f;border-radius:8px;padding:10px;display:block}
+.notice{padding:10px;border-radius:8px;background:#0e2033;border:1px dashed #2b4b68;margin-top:10px}
+.footer{opacity:.7;margin-top:14px}
