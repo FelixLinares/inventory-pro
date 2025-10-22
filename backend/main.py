@@ -1,115 +1,55 @@
-﻿from datetime import datetime, timedelta
-
-from fastapi import FastAPI, HTTPException, Depends
+﻿# backend/main.py
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, EmailStr
-from sqlalchemy.orm import Session
 
-from .settings import settings
-from .db import SessionLocal, init_db
-from .models import User
+# Si estos imports existen en tu proyecto, se usarán.
+# Si no existen, el try/except evita que crashee.
+try:
+    from .settings import settings
+except Exception:
+    class _S:
+        API_TITLE = "Inventory API"
+        API_VERSION = "0.1.0"
+    settings = _S()
 
-from passlib.context import CryptContext
-import jwt  # PyJWT
+try:
+    from .db import init_db
+except Exception:
+    def init_db():
+        pass
 
+app = FastAPI(title=settings.API_TITLE, version=settings.API_VERSION)
 
-API_TITLE = getattr(settings, "API_TITLE", "Inventory API")
-API_VERSION = getattr(settings, "API_VERSION", "0.1.0")
-SECRET_KEY = getattr(settings, "SECRET_KEY", "change-me-in-env")
-JWT_ALG = "HS256"
-ACCESS_TOKEN_MIN = 60 * 12  # 12 horas
-
-app = FastAPI(title=API_TITLE, version=API_VERSION)
-
+# ---------- CORS (¡LO IMPORTANTE!) ----------
 ALLOWED_ORIGINS = [
-    "https://inventario-pro-front.onrender.com",
-    "http://127.0.0.1:5500",
+    "https://inventario-pro-front.onrender.com",  # tu frontend en Render
     "http://localhost:5500",
+    "http://127.0.0.1:5500",
 ]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=ALLOWED_ORIGINS,  # mejor específico que '*'
+    allow_credentials=False,
+    allow_methods=["*"],            # GET, POST, PUT, DELETE, OPTIONS...
+    allow_headers=["*"],            # Authorization, Content-Type, etc.
 )
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-class UserCreate(BaseModel):
-    name: str
-    email: EmailStr
-    password: str
-
-
-class LoginIn(BaseModel):
-    email: EmailStr
-    password: str
-
-
-class TokenOut(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-
+# --------------------------------------------
 
 @app.on_event("startup")
 def _startup():
     init_db()
 
-
 @app.get("/health")
 def health():
     return {"ok": True}
 
-
 @app.get("/")
 def root():
-    return {"message": "Inventory API"}
+    return {"message": "Inventory API up"}
 
-
-@app.post("/auth/register-admin", status_code=201)
-def register_admin(payload: UserCreate, db: Session = Depends(get_db)):
-    # Solo si aún no hay usuarios
-    any_user = db.query(User).first()
-    if any_user:
-        raise HTTPException(status_code=400, detail="Ya existe un usuario. Use login.")
-
-    existing = db.query(User).filter(User.email == payload.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email ya registrado.")
-
-    hashed = pwd_context.hash(payload.password)
-    u = User(
-        name=payload.name,
-        email=payload.email,
-        hashed_password=hashed,
-        is_admin=True,
-        is_active=True,
-        failed_attempts=0,
-        is_locked=False,
-    )
-    db.add(u)
-    db.commit()
-    db.refresh(u)
-    return {"id": u.id, "email": u.email, "is_admin": u.is_admin}
-
-
-@app.post("/auth/login", response_model=TokenOut)
-def login(payload: LoginIn, db: Session = Depends(get_db)):
-    u = db.query(User).filter(User.email == payload.email).first()
-    if not u or not pwd_context.verify(payload.password, u.hashed_password):
-        raise HTTPException(status_code=401, detail="Credenciales inválidas.")
-
-    now = datetime.utcnow()
-    exp = now + timedelta(minutes=ACCESS_TOKEN_MIN)
-    token = jwt.encode({"sub": str(u.id), "exp": exp}, SECRET_KEY, algorithm=JWT_ALG)
-    return TokenOut(access_token=token)
+# Monta los routers si existen (auth con /auth/register-admin y /auth/login)
+try:
+    from .auth import router as auth_router
+    app.include_router(auth_router, prefix="/auth", tags=["auth"])
+except Exception as e:
+    print("auth router no cargado:", e)
