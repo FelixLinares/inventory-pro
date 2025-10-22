@@ -14,3 +14,4 @@ Thumbs.db
 
 # Node (si en el futuro usas)
 frontend/node_modules/
+backend/main.backup.py
