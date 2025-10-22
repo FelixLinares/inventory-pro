@@ -1,39 +1,24 @@
-﻿# backend/main.py
-from fastapi import FastAPI
+﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-# Si estos imports existen en tu proyecto, se usarán.
-# Si no existen, el try/except evita que crashee.
-try:
-    from .settings import settings
-except Exception:
-    class _S:
-        API_TITLE = "Inventory API"
-        API_VERSION = "0.1.0"
-    settings = _S()
-
-try:
-    from .db import init_db
-except Exception:
-    def init_db():
-        pass
+from .settings import settings
+from .db import init_db
+from .routers import auth  # si tu router de auth está en backend/routers/auth.py
 
 app = FastAPI(title=settings.API_TITLE, version=settings.API_VERSION)
 
-# ---------- CORS (¡LO IMPORTANTE!) ----------
+# 🔧 CORS: autoriza explícitamente tu front en Render
 ALLOWED_ORIGINS = [
-    "https://inventario-pro-front.onrender.com",  # tu frontend en Render
-    "http://localhost:5500",
-    "http://127.0.0.1:5500",
+    "https://inventario-pro-front.onrender.com",
 ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,  # mejor específico que '*'
-    allow_credentials=False,
-    allow_methods=["*"],            # GET, POST, PUT, DELETE, OPTIONS...
-    allow_headers=["*"],            # Authorization, Content-Type, etc.
+    allow_origins=ALLOWED_ORIGINS,           # evita '*' cuando allow_credentials=True
+    allow_origin_regex=r"https://.*\.onrender\.com",  # comodín opcional
+    allow_credentials=True,                  # cookies/headers de auth si algún día los usas
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-# --------------------------------------------
 
 @app.on_event("startup")
 def _startup():
@@ -43,13 +28,5 @@ def _startup():
 def health():
     return {"ok": True}
 
-@app.get("/")
-def root():
-    return {"message": "Inventory API up"}
-
-# Monta los routers si existen (auth con /auth/register-admin y /auth/login)
-try:
-    from .auth import router as auth_router
-    app.include_router(auth_router, prefix="/auth", tags=["auth"])
-except Exception as e:
-    print("auth router no cargado:", e)
+# incluye tus routers
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
