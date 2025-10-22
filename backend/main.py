@@ -3,15 +3,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from .settings import settings
 from .db import init_db
 
-# 👇 Asegúrate de que esto exista y apunte al archivo correcto
-from .routers import auth
+# 👇 IMPORTA el router
+from .routers.auth import router as auth_router
 
 app = FastAPI(title=settings.API_TITLE, version=settings.API_VERSION)
 
-# CORS correcto
 ALLOWED_ORIGINS = [
     "https://inventario-pro-front.onrender.com",
 ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -29,5 +29,9 @@ def _startup():
 def health():
     return {"ok": True}
 
-# 👇 ESTO ES CLAVE: incluye el router de auth con el prefijo /auth
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
+@app.get("/")
+def root():
+    return {"ok": True}
+
+# 👇 INCLUYE el router con prefijo /auth
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
