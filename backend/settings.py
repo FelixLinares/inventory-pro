@@ -1,11 +1,10 @@
-from pydantic_settings import BaseSettings
-from pydantic import Field
+﻿from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = Field(default="sqlite:///./data/inventory.db")
-    SECRET_KEY: str = Field(default="changeme")
-    ALGORITHM: str = Field(default="HS256")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60)
-    ALLOWED_ORIGINS: str = Field(default="*")
+    DATABASE_URL: str = "sqlite:///./data.db"  # Cambia a tu Postgres más tarde
+    API_TITLE: str = "Inventory API"
+    API_VERSION: str = "0.1.0"
+    class Config:
+        env_file = ".env"
 
 settings = Settings()
