@@ -19,3 +19,22 @@ def _startup():
 @app.get("/health")
 def health():
     return {"ok": True}
+
+from fastapi.middleware.cors import CORSMiddleware
+
+# --- CORS: permitir el front y dev local ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://inventario-pro-front.onrender.com",
+        "http://localhost:5500",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# --- Endpoints de salud/diagnóstico ---
+@app.get("/health", tags=["health"])
+def health():
+    return {"status": "ok"}
