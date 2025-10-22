@@ -2,20 +2,21 @@
 from fastapi.middleware.cors import CORSMiddleware
 from .settings import settings
 from .db import init_db
-from .routers import auth  # si tu router de auth está en backend/routers/auth.py
+
+# 👇 Asegúrate de que esto exista y apunte al archivo correcto
+from .routers import auth
 
 app = FastAPI(title=settings.API_TITLE, version=settings.API_VERSION)
 
-# 🔧 CORS: autoriza explícitamente tu front en Render
+# CORS correcto
 ALLOWED_ORIGINS = [
     "https://inventario-pro-front.onrender.com",
 ]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,           # evita '*' cuando allow_credentials=True
-    allow_origin_regex=r"https://.*\.onrender\.com",  # comodín opcional
-    allow_credentials=True,                  # cookies/headers de auth si algún día los usas
+    allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"https://.*\.onrender\.com",
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -28,5 +29,5 @@ def _startup():
 def health():
     return {"ok": True}
 
-# incluye tus routers
+# 👇 ESTO ES CLAVE: incluye el router de auth con el prefijo /auth
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
