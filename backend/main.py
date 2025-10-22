@@ -1,4 +1,5 @@
-﻿from fastapi import FastAPI
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from .settings import settings
 from .db import init_db
@@ -34,7 +35,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Endpoints de salud/diagnóstico ---
+# --- Endpoints de salud/diagn�stico ---
 @app.get("/health", tags=["health"])
 def health():
     return {"status": "ok"}
+
+
+
+@app.get('/')
+def root():
+    return {'ok': True}
